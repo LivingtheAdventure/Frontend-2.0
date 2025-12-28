@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import fetchHero from "./FetchHero";
 import ADVSlider from '../Common/Slider/Slider'
 import Spinner from "../Spinner/Spinner";
+import MainPage from "../Common/MainPage/MainPage";
 
 function Hero({ heroType }) {
     const [events, setEvents] = useState([]);
@@ -53,7 +54,7 @@ function Hero({ heroType }) {
 
     return (
         <div className="bg-black text-white min-h-screen font-sans overflow-hidden relative">
-            <ADVSlider heroType={heroType} movies={events} />
+            <MainPage heroType={heroType} heroContent={events} />
         </div>
     );
 }

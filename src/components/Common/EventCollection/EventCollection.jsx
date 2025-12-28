@@ -6,7 +6,7 @@ const EventCollection = ({ heroType, data = [] }) => {
         return data.reduce((acc, item) => {
             let type;
             if (heroType == "home") {
-                type = item.event_type;
+                type = item.label;
             } else {
                 type = item.state;
             }
@@ -17,7 +17,8 @@ const EventCollection = ({ heroType, data = [] }) => {
                 name: item.title,
                 imageUrl: item.cover_image_url,
                 description: item.short_description,
-                videoUrl: item.promo_video_url || ""
+                videoUrl: item.promo_video_url || "",
+                label: item.label || "",
             });
 
             return acc;

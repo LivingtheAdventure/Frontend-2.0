@@ -41,7 +41,7 @@ const CategoryRoller = ({ title, items = [] }) => {
                 >
                     {items.map((item) => (
                         <div key={item.id} className="flex-shrink-0">
-                            <EventCard item={item} />
+                            <EventCard title={title} item={item} />
                         </div>
                     ))}
                 </div>
