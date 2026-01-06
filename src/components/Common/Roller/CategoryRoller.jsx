@@ -12,7 +12,7 @@ const CategoryRoller = ({ title, items = [] }) => {
         <div className="relative">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 px-4 md:px-8">
-                <h2 className="text-xl md:text-2xl font-bold text-white">
+                <h2 className="text-xl md:text-2xl font-bold text-white capitalize">
                     {title}
                 </h2>
                 <button className="text-sm font-semibold text-gray-400 hover:text-white transition">

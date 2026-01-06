@@ -1,6 +1,7 @@
 import Spinner from "../../Spinner/Spinner";
 import useHoverDetails from "./useHoverDetails";
 import { useRef } from "react";
+import { GoPlus } from "react-icons/go";
 function VerticalEventCard({ item }) {
     const cardRef = useRef(null);
     const {
@@ -85,9 +86,12 @@ function VerticalEventCard({ item }) {
                                             <button className="flex-1 bg-white text-black text-xs font-semibold py-1.5 rounded-md">
                                                 Book Now
                                             </button>
-                                            <button className="w-7 h-7 border border-gray-500 text-white rounded-md">
-                                                +
-                                            </button>
+                                            <div className="border rounded-md w-7 h-7 border-gray-500 flex items-center justify-center">
+                                                <button className="  text-white ">
+                                                    <GoPlus />
+                                                </button>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -100,12 +104,12 @@ function VerticalEventCard({ item }) {
                         className={`mt-2 px-1 transition-opacity
                     ${isHovered ? "opacity-0" : "opacity-100"}`}
                     >
-                        <h3 className="text-sm font-semibold text-white truncate">
+                        <h3 className="text-sm font-semibold text-white capitalize">
                             {item.name}
                         </h3>
-                        <p className="text-xs text-gray-400 line-clamp-2">
+                        {/* <p className="text-xs text-gray-400 line-clamp-2">
                             {item.description}
-                        </p>
+                        </p> */}
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import Spinner from "../../Spinner/Spinner";
 import useHoverDetails from "./useHoverDetails";
+import { GoPlus } from "react-icons/go";
 
 const HorizontalEventCard = ({ item }) => {
     const cardRef = useRef(null);
@@ -79,9 +80,11 @@ const HorizontalEventCard = ({ item }) => {
                                 <button className="bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-md">
                                     Book
                                 </button>
-                                <button className="w-7 h-7 border border-white/40 text-white rounded-md text-sm">
-                                    +
-                                </button>
+                                <div className="border rounded-md w-7 h-7 border-gray-500 flex items-center justify-center">
+                                    <button className="  text-white ">
+                                        <GoPlus />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

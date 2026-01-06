@@ -21,3 +21,25 @@
 .animate-scale-in {
   animation: scale-in 0.2s ease-out forwards;
 }
+
+.font-bebas {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.font-cenzel-400 {
+  font-family: 'Cinzel', serif;
+  font-weight: 400;
+
+}
+.font-cenzel-600 {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+
+}
+
+.font-cenzel-700 {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+
+}

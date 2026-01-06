@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { GoPlus } from "react-icons/go";
 
 function Slider({ heroContent = [] }) {
     const initialHero = useMemo(() => heroContent[0] || null, [heroContent]);
@@ -70,17 +71,17 @@ function Slider({ heroContent = [] }) {
                 <div className="relative z-10 h-full flex items-center px-10">
                     <div className="container mx-auto px-4 md:px-20 lg:px-24 ml-16">
 
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                        <h1 className="text-3xl md:text-4xl font-bold mb-4 uppercase">
                             {activeHero.title}
                         </h1>
 
-                        <div className="flex gap-4 mb-2 text-gray-400 text-sm">
+                        <div className="flex gap-4 mb-2 text-gray-400 text-sm capitalize">
                             {(activeHero.details || []).map(d => (
                                 <span key={d}>{d}</span>
                             ))}
                         </div>
 
-                        <p className="max-w-xl text-base md:text-lg mb-6">
+                        <p className="max-w-xl text-base md:text-lg mb-6 capitalize">
                             {activeHero.description}
                         </p>
 
@@ -99,9 +100,10 @@ function Slider({ heroContent = [] }) {
                                 <button className="bg-white text-black font-bold py-3 px-8 rounded-lg transform-gpu will-change-transform backface-hidden">
                                     Book Now
                                 </button>
-                                <button className="bg-white/20 text-white p-3 rounded-full transform-gpu will-change-transform backface-hidden">
-                                    +
+                                <button className="bg-white/20 text-white p-3 rounded-xl px-5 transform-gpu will-change-transform backface-hidden">
+                                    <GoPlus className=" h-5" />
                                 </button>
+
                             </div>
 
                             {/* Thumbnails */}
