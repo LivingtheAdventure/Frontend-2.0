@@ -16,12 +16,8 @@ function App() {
         <Route path="/peak-expedition" element={<Home heroType="peek" />} />
         <Route path="/park-development-design" element={<Home heroType="parkdev" />} />
         <Route path="/eventDetails/:id" element={<EventDetail />} />
-        <Route path="/adventure" element={<ViewAll event_type="adventure" />} />
-        <Route path="/trip" element={<ViewAll event_type="trip" />} />
-        <Route path="/trek" element={<ViewAll event_type="trek" />} />
-        <Route path="/peak" element={<ViewAll event_type="peak" />} />
-        <Route path="/special_event" element={<ViewAll event_type="special_event" />} />
-        <Route path="/best_of_the_year" element={<ViewAll event_type="best_of_the_year" />} />
+        <Route path="/${event_type}" element={<ViewAll(event_type) />} />
+
       </Routes>
     </Router>
   )

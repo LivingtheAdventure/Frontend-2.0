@@ -14,8 +14,7 @@ const CategoryRoller = ({ title, items = [] }) => {
         "special event": "/special_event",
         "best of the year": "/best_of_the_year",
     };
-    const route =
-        ROUTE_MAP[title?.toLowerCase()] || "/events";
+
     const scrollRef = useRef(null);
 
     if (!items.length) return null;
@@ -27,7 +26,9 @@ const CategoryRoller = ({ title, items = [] }) => {
                 <h2 className="text-xl md:text-2xl font-bold text-white capitalize">
                     {title}
                 </h2>
-                <a href={route}>
+                <a
+                    href={title.toLowerCase() === "trips" ? "/trips" : "/events"}
+                >
                     <button className="text-sm font-semibold text-gray-400 hover:text-white transition">
                         View All &gt;
                     </button>

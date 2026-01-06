@@ -22,6 +22,7 @@ function App() {
         <Route path="/peak" element={<ViewAll event_type="peak" />} />
         <Route path="/special_event" element={<ViewAll event_type="special_event" />} />
         <Route path="/best_of_the_year" element={<ViewAll event_type="best_of_the_year" />} />
+
       </Routes>
     </Router>
   )
