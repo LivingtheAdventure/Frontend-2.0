@@ -4,7 +4,7 @@ import { FaFacebookF, FaXTwitter } from "react-icons/fa6";
 const Footer = () => {
     return (
         <footer className="bg-black text-gray-400 py-12 px-16 md:px-20 w-full ">
-            <div className="max-w-7xl mx-auto grid grid-cols-2 md:flex md:justify-around gap-10">
+            <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
                 <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Company</h3>
                     <ul className="space-y-2">
