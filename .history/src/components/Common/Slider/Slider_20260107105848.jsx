@@ -33,7 +33,7 @@ function Slider({ heroContent = [] }) {
 
     return (
         <div className="bg-black text-white">
-            <section className="relative h-[70vh] sm:h-[80vh] lg:h-screen w-full pl-10 md:pl-0 overflow-hidden">
+            <section className="relative h-[70vh] sm:h-[80vh] lg:h-screen w-full overflow-hidden">
 
                 {/* Video */}
                 <div className={`absolute inset-0 transition-opacity duration-300 ${fade ? "opacity-0" : "opacity-100"}`}>
@@ -87,7 +87,7 @@ function Slider({ heroContent = [] }) {
                         </p>
 
                         {/* GENRES */}
-                        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 md:pr-0 text-gray-300 text-xs sm:text-sm">
+                        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 text-gray-300 text-xs sm:text-sm">
                             {(activeHero.genres || []).map((g, i) => (
                                 <span key={g}>
                                     {g}{i < activeHero.genres.length - 1 && " •"}
@@ -121,12 +121,10 @@ function Slider({ heroContent = [] }) {
 
                             {/* Thumbnails */}
                             <div className="
-                flex gap-2
+                flex gap-10
                 overflow-x-auto
                 sm:overflow-visible
                 sm:absolute sm:right-0 sm:top-1
-                md:pt-0
-                pt-5
                 pb-2 sm:pb-0
               ">
                                 {heroContent.map(hero => (

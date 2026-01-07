@@ -19,15 +19,32 @@ const Event = ({ heroType }) => {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [heroType]);
 
-    if (loading) return <div className="text-white text-center mt-20">
-        <Spinner />
-    </div>;
-    if (error) return <div className="text-red-500 text-center mt-20">{error}</div>;
+    if (loading)
+        return (
+            <div className="bg-black text-white min-h-screen flex items-center justify-center">
+                <Spinner />
+            </div>
+        );
+
+    if (error)
+        return (
+            <div className="bg-black text-red-500 min-h-screen flex items-center justify-center">
+                {error}
+            </div>
+        );
 
     return (
-        <div className="min-h-screen font-sans ml-10 mt-4">
+        <div
+            className="
+        min-h-screen font-sans
+        px-4 sm:px-6
+        mt-6 sm:mt-4
+        ml-0 lg:ml-20
+        bg-black
+      "
+        >
             <EventCollection heroType={heroType} data={events} />
         </div>
     );

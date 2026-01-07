@@ -27,7 +27,7 @@ const Event = ({ heroType }) => {
     if (error) return <div className="text-red-500 text-center mt-20">{error}</div>;
 
     return (
-        <div className="min-h-screen font-sans ml-10 mt-4">
+        <div className="min-h-screen font-sans ml-20 mt-4">
             <EventCollection heroType={heroType} data={events} />
         </div>
     );

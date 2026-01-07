@@ -20,7 +20,7 @@ const HorizontalEventCard = ({ item }) => {
             className="
         shrink-0
         w-full
-        max-w-52 sm:max-w-sm md:max-w-sm
+        max-w-xs sm:max-w-sm md:max-w-md
         group
       "
             onMouseEnter={handleMouseEnter}
@@ -29,7 +29,7 @@ const HorizontalEventCard = ({ item }) => {
             <a href={`/eventDetails/${item.id}`} className="block">
                 <div
                     className={`
-            relative aspect-[5/3]
+            relative md:aspect-[5/3] aspect-[1/0.4]
             rounded-lg overflow-hidden bg-gray-800
             transition-all duration-300
             ${isHovered

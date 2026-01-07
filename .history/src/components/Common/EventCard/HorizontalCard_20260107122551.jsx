@@ -20,7 +20,7 @@ const HorizontalEventCard = ({ item }) => {
             className="
         shrink-0
         w-full
-        max-w-52 sm:max-w-sm md:max-w-sm
+        max-w-52 sm:max-w-sm md:max-w-md
         group
       "
             onMouseEnter={handleMouseEnter}

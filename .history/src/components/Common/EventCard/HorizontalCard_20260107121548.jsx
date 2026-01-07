@@ -20,7 +20,7 @@ const HorizontalEventCard = ({ item }) => {
             className="
         shrink-0
         w-full
-        max-w-52 sm:max-w-sm md:max-w-sm
+        max-w-xs sm:max-w-sm md:max-w-md
         group
       "
             onMouseEnter={handleMouseEnter}
@@ -46,12 +46,12 @@ const HorizontalEventCard = ({ item }) => {
                         width="480"
                         height="288"
                         className="
-                w-full h-full object-cover
-                transition-transform duration-300
-                transform-gpu will-change-transform backface-hidden
-                group-hover:scale-102
-                lg:hover:scale-105
-                "
+              w-full h-full object-cover
+              transition-transform duration-300
+              transform-gpu will-change-transform backface-hidden
+              group-hover:scale-102
+              lg:hover:scale-105
+            "
                     />
 
                     {/* Gradient */}

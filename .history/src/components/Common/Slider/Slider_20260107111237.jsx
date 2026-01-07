@@ -126,7 +126,7 @@ function Slider({ heroContent = [] }) {
                 sm:overflow-visible
                 sm:absolute sm:right-0 sm:top-1
                 md:pt-0
-                pt-5
+                pt-10
                 pb-2 sm:pb-0
               ">
                                 {heroContent.map(hero => (

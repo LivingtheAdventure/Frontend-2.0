@@ -122,11 +122,12 @@ function Slider({ heroContent = [] }) {
                             {/* Thumbnails */}
                             <div className="
                 flex gap-2
+
                 overflow-x-auto
                 sm:overflow-visible
                 sm:absolute sm:right-0 sm:top-1
                 md:pt-0
-                pt-5
+                pt-20
                 pb-2 sm:pb-0
               ">
                                 {heroContent.map(hero => (

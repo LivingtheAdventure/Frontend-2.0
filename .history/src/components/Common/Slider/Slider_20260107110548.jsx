@@ -33,7 +33,7 @@ function Slider({ heroContent = [] }) {
 
     return (
         <div className="bg-black text-white">
-            <section className="relative h-[70vh] sm:h-[80vh] lg:h-screen w-full pl-10 md:pl-0 overflow-hidden">
+            <section className="relative h-[70vh] sm:h-[80vh] lg:h-screen w-full pl-10 overflow-hidden">
 
                 {/* Video */}
                 <div className={`absolute inset-0 transition-opacity duration-300 ${fade ? "opacity-0" : "opacity-100"}`}>
@@ -122,11 +122,12 @@ function Slider({ heroContent = [] }) {
                             {/* Thumbnails */}
                             <div className="
                 flex gap-2
+
                 overflow-x-auto
                 sm:overflow-visible
                 sm:absolute sm:right-0 sm:top-1
                 md:pt-0
-                pt-5
+                pt-20
                 pb-2 sm:pb-0
               ">
                                 {heroContent.map(hero => (
