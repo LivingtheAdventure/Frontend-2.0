@@ -3,7 +3,7 @@ import fetchEventsByType from "./FetchEvent";
 import VerticalEventCard from "../Common/EventCard/VerticalEventCard";
 import Spinner from "../Spinner/Spinner";
 
-function ViewAll({ event_type }) {
+function ViewAll({ event_type, state }) {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ function ViewAll({ event_type }) {
         let mounted = true;
         setLoading(true);
 
-        fetchEventsByType(event_type)
+        fetchEventsByType(event_type, state)
             .then(data => {
                 if (mounted) setEvents(data);
             })
@@ -30,7 +30,7 @@ function ViewAll({ event_type }) {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-20">
+            <div className="flex justify-center items-center py-20 min-h-screen">
                 <Spinner />
             </div>
         );
@@ -53,13 +53,13 @@ function ViewAll({ event_type }) {
     }
 
     return (
-        <section className="bg-neutral-950 py-16">
+        <section className="bg-neutral-950 py-16 min-h-screen">
             <div className="px-6">
 
                 {/* Section Title */}
                 <div className="mb-10 w-full text-center">
                     <h2 className="text-2xl md:text-3xl font-bebas text-white">
-                        Continue Exploring {event_type === "trip" ? "Trips" : "Events"}
+                        Continue Exploring {state} {event_type}s
                     </h2>
                     <p className="text-gray-400 mt-1 text-sm md:text-base">
                         Discover more adventures curated for you

@@ -1,11 +1,20 @@
 import axios from "axios";
 
-const fetchEventsByType = async (event_type) => {
+const fetchEventsByType = async (event_type, state = "") => {
     const response = await axios.get(
         `https://backend-theta-seven-48.vercel.app/events/by-type/${event_type}`
     );
 
-    return response.data.map(event => ({
+    let events = response.data;
+
+    // ✅ filter only if state is not empty
+    if (state && state.trim() !== "") {
+        events = events.filter(
+            event => event.state?.toLowerCase() === state.toLowerCase()
+        );
+    }
+
+    return events.map(event => ({
         id: event.id,
         title: event.title,
         imageUrl: event.cover_image_url,

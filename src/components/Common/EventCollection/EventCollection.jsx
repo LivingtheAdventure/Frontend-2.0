@@ -14,6 +14,7 @@ const EventCollection = ({ heroType, data = [] }) => {
 
             acc[type].push({
                 id: item.id,
+                event_type: item.event_type,
                 name: item.title,
                 imageUrl: item.cover_image_url,
                 description: item.short_description,

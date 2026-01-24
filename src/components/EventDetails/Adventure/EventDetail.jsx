@@ -10,7 +10,6 @@ import fetchScheduleByID from "../components/FetchScheduleByID";
 import ScheduleHeader from "../components/EventSchedule/ScheduleHeader";
 import PickupPoints from "../components/EventSchedule/PickupPoints";
 import Pricing from "../components/EventSchedule/Pricing";
-import Extras from "../components/EventSchedule/Extras";
 import Highlights from "../components/Highlighter";
 function EventDetail() {
     const { id } = useParams();
@@ -80,13 +79,60 @@ function EventDetail() {
                     </div>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <StarCard title="Location" value={events.location} />
-                        <StarCard title="Category" value={events.adventure_activity_category} />
-                        <StarCard title="Duration" value={`${events.duration_days} days • ${events.duration_nights} nights`} />
-                        <StarCard title="Fitness" value={events.fitness_requirement} />
-                        <StarCard title="Age" value={events.age_requirement} />
-                        <StarCard title="Difficulty" value={events.adventure_difficulty_level} />
+                        {events.event_type === "adventure" && (
+                            <>
+                                <StarCard title="Location" value={events.location} />
+                                <StarCard title="Category" value={events.adventure_activity_category} />
+                                <StarCard
+                                    title="Duration"
+                                    value={`${events.duration_days} days • ${events.duration_nights} nights`}
+                                />
+                                <StarCard title="Fitness" value={events.fitness_requirement} />
+                                <StarCard title="Age" value={events.age_requirement} />
+                                <StarCard title="Difficulty" value={events.adventure_difficulty_level} />
+                            </>
+                        )}
+
+                        {events.event_type === "trip" && (
+                            <>
+                                <StarCard title="Location" value={events.location} />
+                                <StarCard
+                                    title="Duration"
+                                    value={`${events.duration_days} days • ${events.duration_nights} nights`}
+                                />
+                                <StarCard title="Fitness" value={events.fitness_requirement} />
+                                <StarCard title="Age" value={events.age_requirement} />
+                            </>
+                        )}
+
+                        {events.event_type === "trek" && (
+                            <>
+                                <StarCard title="Location" value={events.location} />
+                                <StarCard
+                                    title="Duration"
+                                    value={`${events.duration_days} days • ${events.duration_nights} nights`}
+                                />
+                                <StarCard title="Fitness" value={events.fitness_requirement} />
+                                <StarCard title="Age" value={events.age_requirement} />
+                                <StarCard title="Difficulty" value={events.trek_difficulty_level} />
+                            </>
+                        )}
+
+                        {events.event_type === "Peak" && (
+                            <>
+                                <StarCard title="Location" value={events.location} />
+                                <StarCard
+                                    title="Duration"
+                                    value={`${events.duration_days} days • ${events.duration_nights} nights`}
+                                />
+                                <StarCard title="Fitness" value={events.fitness_requirement} />
+                                <StarCard title="Age" value={events.age_requirement} />
+                                <StarCard title="Difficulty" value={events.peak_difficulty_level} />
+                                <StarCard title="Group Type" value={events.peak_group_type} />
+                            </>
+                        )}
                     </div>
+
                 </div>
             </section>
 

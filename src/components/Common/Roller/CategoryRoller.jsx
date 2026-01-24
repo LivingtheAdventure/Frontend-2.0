@@ -4,6 +4,7 @@ import scroll from "./Scroll";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const CategoryRoller = ({ title, items = [] }) => {
+
     const ROUTE_MAP = {
         "adventure activity": "/adventure",
         "trip": "/trip",
@@ -11,10 +12,19 @@ const CategoryRoller = ({ title, items = [] }) => {
         "trek": "/trek",
         "peak expedition": "/peak",
         "special event": "/special_event",
-        "best of the year": "/best_of_the_year",
+        "best of the year": "/best_of_the_year"
     };
 
-    const route = ROUTE_MAP[title?.toLowerCase()] || "/events";
+    // Dynamic route for state-based categories (e.g., /trip/upcoming)
+    let route = ROUTE_MAP[title?.toLowerCase()] || "/events";
+    console.log(title)
+    if (items.length > 0 && items[0].event_type && title) {
+        const eventType = items[0].event_type?.toLowerCase();
+        const stateSlug = encodeURIComponent(title.toLowerCase());
+        if (["Upcoming", "Launch", "Launched Now!", "In Progress", "Completed"].includes(title)) {
+            route = `/${eventType}/${stateSlug}`;
+        }
+    }
     const scrollRef = useRef(null);
 
     if (!items.length) return null;
