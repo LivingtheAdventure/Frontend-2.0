@@ -1,9 +1,9 @@
 import Spinner from "../../Spinner/Spinner";
 import useHoverDetails from "./useHoverDetails";
 import { useRef } from "react";
-import { GoPlus } from "react-icons/go";
+import { GoPlus, GoCheck } from "react-icons/go";
 
-function VerticalEventCard({ item }) {
+function VerticalEventCard({ item, isFavourite, onToggleFavourite }) {
     const cardRef = useRef(null);
 
     const {
@@ -13,6 +13,15 @@ function VerticalEventCard({ item }) {
         handleMouseEnter,
         handleMouseLeave,
     } = useHoverDetails(item);
+
+    const handleFavouriteClick = (e) => {
+        // Prevent navigation to event details when clicking the favourite icon
+        e.preventDefault();
+        e.stopPropagation();
+        if (onToggleFavourite) {
+            onToggleFavourite(item.event_uuid || item.id);
+        }
+    };
 
     return (
         <div
@@ -109,9 +118,20 @@ function VerticalEventCard({ item }) {
                                             Book Now
                                         </button>
 
-                                        <div className="border rounded-md w-7 h-7 border-gray-500 flex items-center justify-center">
-                                            <GoPlus className="text-white text-sm" />
-                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleFavouriteClick}
+                                            className={`
+                                                border rounded-md w-7 h-7 flex items-center justify-center
+                                                ${isFavourite ? "bg-green-600 border-green-400" : "border-gray-500"}
+                                            `}
+                                        >
+                                            {isFavourite ? (
+                                                <GoCheck className="text-white text-sm" />
+                                            ) : (
+                                                <GoPlus className="text-white text-sm" />
+                                            )}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

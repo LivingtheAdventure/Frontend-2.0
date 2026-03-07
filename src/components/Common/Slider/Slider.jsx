@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { GoPlus } from "react-icons/go";
+import { GoPlus, GoCheck } from "react-icons/go";
 
-function Slider({ heroContent = [] }) {
+function Slider({ heroContent = [], favourites, onToggleFavourite }) {
     const initialHero = useMemo(() => heroContent[0] || null, [heroContent]);
     const [activeHero, setActiveHero] = useState(initialHero);
     const [audioOn, setAudioOn] = useState(false);
@@ -30,6 +30,11 @@ function Slider({ heroContent = [] }) {
         const next = heroContent[(currentIndex + 1) % heroContent.length];
         changeHero(next);
     };
+
+    const isFavourite =
+        favourites instanceof Set && activeHero?.eventId
+            ? favourites.has(activeHero.eventId)
+            : false;
 
     return (
         <div className="bg-black text-white">
@@ -110,12 +115,24 @@ function Slider({ heroContent = [] }) {
                                     Book Now
                                 </button>
 
-                                <button className="
+                                <button
+                                    className="
                   bg-white/20 text-white
                   p-2.5 sm:p-3
                   rounded-xl
-                ">
-                                    <GoPlus className="h-4 sm:h-5" />
+                "
+                                    type="button"
+                                    onClick={() =>
+                                        onToggleFavourite &&
+                                        activeHero?.eventId &&
+                                        onToggleFavourite(activeHero.eventId)
+                                    }
+                                >
+                                    {isFavourite ? (
+                                        <GoCheck className="h-4 sm:h-5" />
+                                    ) : (
+                                        <GoPlus className="h-4 sm:h-5" />
+                                    )}
                                 </button>
                             </div>
 

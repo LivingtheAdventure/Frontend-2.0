@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import CategoryRoller from "../../Common/Roller/CategoryRoller";
 
-const EventCollection = ({ heroType, data = [] }) => {
+const EventCollection = ({ heroType, data = [], favourites, onToggleFavourite }) => {
     const groupedData = useMemo(() => {
         return data.reduce((acc, item) => {
             let type;
@@ -14,6 +14,7 @@ const EventCollection = ({ heroType, data = [] }) => {
 
             acc[type].push({
                 id: item.id,
+                event_uuid: item.event_id,
                 event_type: item.event_type,
                 name: item.title,
                 imageUrl: item.cover_image_url,
@@ -36,6 +37,8 @@ const EventCollection = ({ heroType, data = [] }) => {
                         key={category}
                         title={category}
                         items={items}
+                        favourites={favourites}
+                        onToggleFavourite={onToggleFavourite}
                     />
                 ))}
             </div>

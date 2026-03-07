@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import NavLink from './NavLink';
+import { useAuth } from '../../context/AuthContext';
+import Logo from '../Common/Logo/logo';
 import {
     FaHome,
     FaSuitcaseRolling,
@@ -11,6 +13,9 @@ import {
 } from 'react-icons/fa';
 
 function NavBar() {
+
+    const { user } = useAuth();   // ✅ move hook inside component
+
     const [showOverlay, setShowOverlay] = useState(false);
 
     return (
@@ -18,25 +23,29 @@ function NavBar() {
             {/* Overlay */}
             <div
                 className={`
-          fixed inset-0 z-10
-          pointer-events-none
-          transition-opacity duration-300
-          ${showOverlay ? 'opacity-60 bg-black' : 'opacity-0'}
-        `}
+                    fixed inset-0 z-10
+                    pointer-events-none
+                    transition-opacity duration-300
+                    ${showOverlay ? 'opacity-60 bg-black' : 'opacity-0'}
+                `}
             />
 
             {/* Sidebar */}
             <div
                 className="
-          fixed top-0 left-0 z-20
-          h-full
-          w-14 sm:w-16
-          flex flex-col justify-center items-center
-          py-3 sm:py-4
-          space-y-1.5 sm:space-y-2
-          bg-transparent
-        "
+                fixed top-0 left-0 z-20
+                h-full
+                w-14 sm:w-16
+                flex flex-col justify-center items-center
+                py-3 sm:py-4
+                space-y-1.5 sm:space-y-2
+                bg-transparent
+                "
             >
+                <div className="absolute top-8 flex items-center justify-center w-28 h-28">
+                    <Logo />
+                </div>
+
                 <a href="/">
                     <NavLink
                         icon={<FaHome className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
@@ -85,13 +94,15 @@ function NavBar() {
                     />
                 </a>
 
-                <a href="/profile">
+                {/* Profile link */}
+                <a href={user ? "/profile" : "/auth"}>
                     <NavLink
                         icon={<FaUserCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
                         label="Profile"
                         onHover={setShowOverlay}
                     />
                 </a>
+
             </div>
         </>
     );

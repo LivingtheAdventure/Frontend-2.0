@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import Spinner from "../../Spinner/Spinner";
 import useHoverDetails from "./useHoverDetails";
-import { GoPlus } from "react-icons/go";
+import { GoPlus, GoCheck } from "react-icons/go";
 
-const HorizontalEventCard = ({ item }) => {
+const HorizontalEventCard = ({ item, isFavourite, onToggleFavourite }) => {
     const cardRef = useRef(null);
 
     const {
@@ -14,6 +14,14 @@ const HorizontalEventCard = ({ item }) => {
         handleMouseLeave,
     } = useHoverDetails(item);
 
+    const handleFavouriteClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (onToggleFavourite) {
+            onToggleFavourite(item.event_uuid || item.id);
+        }
+    };
+
     return (
         <div
             ref={cardRef}
@@ -21,8 +29,7 @@ const HorizontalEventCard = ({ item }) => {
         shrink-0
         w-full
         max-w-52 sm:max-w-sm md:max-w-sm
-        group
-      "
+        group"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -85,9 +92,20 @@ const HorizontalEventCard = ({ item }) => {
                                 <button className="bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-md">
                                     Book
                                 </button>
-                                <div className="border rounded-md w-7 h-7 border-gray-500 flex items-center justify-center">
-                                    <GoPlus className="text-white text-sm" />
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleFavouriteClick}
+                                    className={`
+                                        border rounded-md w-7 h-7 flex items-center justify-center
+                                        ${isFavourite ? "bg-green-600 border-green-400" : "border-gray-500"}
+                                    `}
+                                >
+                                    {isFavourite ? (
+                                        <GoCheck className="text-white text-sm" />
+                                    ) : (
+                                        <GoPlus className="text-white text-sm" />
+                                    )}
+                                </button>
                             </div>
                         </div>
                     )}

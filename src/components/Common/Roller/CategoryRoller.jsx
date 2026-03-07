@@ -3,7 +3,7 @@ import EventCard from "../../Common/EventCard/EventCard";
 import scroll from "./Scroll";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-const CategoryRoller = ({ title, items = [] }) => {
+const CategoryRoller = ({ title, items = [], favourites, onToggleFavourite }) => {
 
     const ROUTE_MAP = {
         "adventure activity": "/adventure",
@@ -80,7 +80,12 @@ const CategoryRoller = ({ title, items = [] }) => {
                 >
                     {items.map((item) => (
                         <div key={item.id} className="flex-shrink-0">
-                            <EventCard title={title} item={item} />
+                            <EventCard
+                                title={title}
+                                item={item}
+                                favourites={favourites}
+                                onToggleFavourite={onToggleFavourite}
+                            />
                         </div>
                     ))}
                 </div>

@@ -2,33 +2,90 @@ import { useState, useEffect } from "react";
 import fetchHero from "./FetchHero";
 import Spinner from "../Spinner/Spinner";
 import MainPage from "../Common/MainPage/MainPage";
+import { useAuth } from "../../context/AuthContext";
+import { fetchFavourites, toggleFavourite } from "../../api/favourites";
 
 function Hero({ heroType }) {
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [favourites, setFavourites] = useState(new Set());
+
+    const { user } = useAuth();
 
     useEffect(() => {
         let isMounted = true;
 
-        setIsLoading(true);
-        setError(null);
+        const loadData = async () => {
+            setIsLoading(true);
+            setError(null);
 
-        fetchHero(heroType)
-            .then((data) => {
-                if (isMounted) setEvents(data);
-            })
-            .catch((err) => {
-                if (isMounted) setError(err.message || "Something went wrong");
-            })
-            .finally(() => {
-                if (isMounted) setIsLoading(false);
-            });
+            try {
+                const heroes = await fetchHero(heroType);
+
+                let favIds = [];
+                if (user) {
+                    const token = await user.getIdToken();
+                    favIds = await fetchFavourites(token);
+                }
+
+                if (!isMounted) return;
+
+                setEvents(heroes);
+                setFavourites(new Set(favIds));
+            } catch (err) {
+                if (isMounted) {
+                    setError(err.message || "Something went wrong");
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        loadData();
 
         return () => {
             isMounted = false;
         };
-    }, [heroType]);
+    }, [heroType, user]);
+
+    const handleToggleFavourite = async (eventId) => {
+        if (!user) {
+            alert("Please login to save favourites.");
+            return;
+        }
+
+        // Optimistic UI update
+        setFavourites((prev) => {
+            const next = new Set(prev);
+            if (next.has(eventId)) {
+                next.delete(eventId);
+            } else {
+                next.add(eventId);
+            }
+            return next;
+        });
+
+        try {
+            const token = await user.getIdToken();
+            const isFavourite = await toggleFavourite(eventId, token);
+
+            // Reconcile with server
+            setFavourites((prev) => {
+                const next = new Set(prev);
+                if (isFavourite) {
+                    next.add(eventId);
+                } else {
+                    next.delete(eventId);
+                }
+                return next;
+            });
+        } catch (err) {
+            console.error("Failed to toggle favourite from hero", err);
+        }
+    };
 
     /* ---------- LOADING STATE ---------- */
     if (isLoading) {
@@ -85,6 +142,8 @@ function Hero({ heroType }) {
             <MainPage
                 heroType={heroType}
                 heroContent={events}
+                favourites={favourites}
+                onToggleFavourite={handleToggleFavourite}
             />
         </section>
     );

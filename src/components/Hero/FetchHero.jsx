@@ -14,6 +14,7 @@ const fetchHero = async (heroType) => {
 
     return data.map((item) => ({
         id: item.id,
+        eventId: item.event_id,
         title: item.title,
         video: item.video_url,
         thumbnail: item.thumbnail_image_url,
