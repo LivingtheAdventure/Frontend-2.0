@@ -19,7 +19,7 @@ function VerticalEventCard({ item, isFavourite, onToggleFavourite }) {
         e.preventDefault();
         e.stopPropagation();
         if (onToggleFavourite) {
-            onToggleFavourite(item.event_uuid || item.id);
+            onToggleFavourite(item.event_uuid);
         }
     };
 

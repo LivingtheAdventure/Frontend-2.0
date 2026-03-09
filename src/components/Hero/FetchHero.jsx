@@ -1,6 +1,6 @@
 const fetchHero = async (heroType) => {
     let response = await fetch(
-        `https://backend-theta-seven-48.vercel.app/heroes/by-type/${heroType}`,
+        `http://127.0.0.1:8000/heroes/by-type/${heroType}`,
         {
             headers: { Accept: "application/json" },
             credentials: "include",

@@ -13,12 +13,14 @@ const HorizontalEventCard = ({ item, isFavourite, onToggleFavourite }) => {
         handleMouseEnter,
         handleMouseLeave,
     } = useHoverDetails(item);
+    console.log(item)
 
     const handleFavouriteClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
+
         if (onToggleFavourite) {
-            onToggleFavourite(item.event_uuid || item.id);
+            onToggleFavourite(item.event_uuid);
         }
     };
 
