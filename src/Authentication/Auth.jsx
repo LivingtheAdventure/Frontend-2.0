@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { auth } from "./firebase";
+import { apiUrl } from "../api/config.js";
 
 /* PHONE NORMALIZER */
 const normalizePhone = (phone) => {
@@ -84,7 +85,7 @@ export default function Auth() {
             const token = await result.user.getIdToken();
 
             const res = await axios.post(
-                "http://localhost:8000/auth/firebase/verify",
+                apiUrl("/auth/firebase/verify"),
                 {},
                 {
                     headers: {

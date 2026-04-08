@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_BASE = "http://localhost:8000";
+import { API_BASE_URL } from "./config.js";
 
 const authHeaders = (token) => ({
   Authorization: `Bearer ${token}`,
@@ -10,7 +9,7 @@ const authHeaders = (token) => ({
 
 export const fetchFavourites = async (token) => {
   try {
-    const res = await axios.get(`${API_BASE}/favourites/`, {
+    const res = await axios.get(`${API_BASE_URL}/favourites/`, {
       headers: authHeaders(token),
     });
     return res.data?.favourites || [];
@@ -23,7 +22,7 @@ export const fetchFavourites = async (token) => {
 
 export const toggleFavourite = async (eventId, token) => {
   const res = await axios.post(
-    `${API_BASE}/favourites/toggle`,
+    `${API_BASE_URL}/favourites/toggle`,
     null,
     {
       params: { event_id: eventId },
@@ -37,7 +36,7 @@ export const toggleFavourite = async (eventId, token) => {
 export async function fetchEventById(id) {
   if (!id) return null;
   try {
-    const res = await axios.get(`${API_BASE}/events/by-uuid/${id}`);
+    const res = await axios.get(`${API_BASE_URL}/events/by-uuid/${id}`);
     const item = res.data;
     if (!item) return null;
 
@@ -60,7 +59,7 @@ export async function fetchEventById(id) {
 // Fixed: was calling undefined authHeaders — now defined above
 export async function fetchFavouriteIds(token) {
   try {
-    const res = await axios.get(`${API_BASE}/favourites/`, {
+    const res = await axios.get(`${API_BASE_URL}/favourites/`, {
       headers: authHeaders(token),
     });
     return res.data?.favourites ?? [];
@@ -72,7 +71,7 @@ export async function fetchFavouriteIds(token) {
 
 export async function toggleFavouriteApi(token, eventId) {
   const res = await axios.post(
-    `${API_BASE}/favourites/toggle`,
+    `${API_BASE_URL}/favourites/toggle`,
     null,
     {
       params: { event_id: eventId },

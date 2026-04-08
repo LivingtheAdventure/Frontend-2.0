@@ -1,13 +1,12 @@
 import axios from "axios";
-
-const API_BASE = "http://localhost:8000";
+import { API_BASE_URL } from "../../api/config.js";
 
 const authHeaders = (token) => ({
     Authorization: `Bearer ${token}`,
 });
 
 export async function fetchMe(token) {
-    const res = await axios.get(`${API_BASE}/auth/me`, {
+    const res = await axios.get(`${API_BASE_URL}/auth/me`, {
         headers: authHeaders(token),
     });
     return res.data;
@@ -15,7 +14,7 @@ export async function fetchMe(token) {
 
 export async function updateProfile(token, { first_name, last_name }) {
     const res = await axios.put(
-        `${API_BASE}/auth/me`,
+        `${API_BASE_URL}/auth/me`,
         { first_name, last_name },
         { headers: authHeaders(token) }
     );
@@ -24,7 +23,7 @@ export async function updateProfile(token, { first_name, last_name }) {
 
 export async function requestEmailOtp(token, email) {
     const res = await axios.post(
-        `${API_BASE}/auth/me/request-email-otp`,
+        `${API_BASE_URL}/auth/me/request-email-otp`,
         { email },
         { headers: authHeaders(token) }
     );
@@ -33,7 +32,7 @@ export async function requestEmailOtp(token, email) {
 
 export async function verifyEmailOtp(token, { email, otp }) {
     const res = await axios.post(
-        `${API_BASE}/auth/me/verify-email-otp`,
+        `${API_BASE_URL}/auth/me/verify-email-otp`,
         { email, otp },
         { headers: authHeaders(token) }
     );

@@ -1,12 +1,20 @@
+import { apiUrl } from "../../api/config.js";
+
 const fetchHero = async (heroType) => {
     let response = await fetch(
-        `http://127.0.0.1:8000/heroes/by-type/${heroType}`,
+        apiUrl(`/heroes/by-type/${heroType}`),
         {
-            headers: { Accept: "application/json" },
-            credentials: "include",
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            mode: "cors",
         }
     );
+
     if (!response.ok) {
+        const text = await response.text();
+        console.error("API ERROR:", text);
         throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -24,5 +32,4 @@ const fetchHero = async (heroType) => {
         genres: item.genres,
     }));
 };
-
 export default fetchHero;
