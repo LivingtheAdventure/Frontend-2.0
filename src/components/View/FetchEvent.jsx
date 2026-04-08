@@ -1,8 +1,9 @@
 import axios from "axios";
+import { apiUrl } from "../../api/config.js";
 
 const fetchEventsByType = async (event_type, state = "") => {
     const response = await axios.get(
-        `https://backend-theta-seven-48.vercel.app/events/by-type/${event_type}`
+        apiUrl(`/events/by-type/${event_type}`)
     );
 
     let events = response.data;

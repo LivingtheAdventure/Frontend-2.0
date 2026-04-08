@@ -1,6 +1,8 @@
+import { apiUrl } from "../../api/config.js";
+
 const fetchHero = async (heroType) => {
     let response = await fetch(
-        `https://backend-theta-seven-48.vercel.app/heroes/by-type/${heroType}`,
+        apiUrl(`/heroes/by-type/${heroType}`),
         {
             headers: { Accept: "application/json" },
             credentials: "include",

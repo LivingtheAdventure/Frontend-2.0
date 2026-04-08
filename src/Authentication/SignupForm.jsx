@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { auth } from "./firebase";
+import { apiUrl } from "../api/config.js";
 
 export default function SignupForm() {
     const [form, setForm] = useState({
@@ -13,7 +14,7 @@ export default function SignupForm() {
         const token = await auth.currentUser.getIdToken();
 
         const res = await axios.post(
-            "http://localhost:8000/auth/signup/complete",
+            apiUrl("/auth/signup/complete"),
             form,
             {
                 headers: {

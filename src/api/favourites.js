@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8000";
+import { API_BASE_URL } from "./config.js";
 
 export const fetchFavourites = async (token) => {
   try {
-    const res = await axios.get(`${API_BASE}/favourites/`, {
+    const res = await axios.get(`${API_BASE_URL}/favourites/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -23,7 +23,7 @@ export const fetchFavourites = async (token) => {
 
 export const toggleFavourite = async (eventId, token) => {
   const res = await axios.post(
-    `${API_BASE}/favourites/toggle/`,
+    `${API_BASE_URL}/favourites/toggle/`,
     { event_id: eventId },
     {
       headers: {
