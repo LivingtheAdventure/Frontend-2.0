@@ -7,6 +7,10 @@ import ViewAll from './components/View/ViewAll.jsx';
 import Auth from './Authentication/Auth.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import Profile from './components/Profile/Profile.jsx';
+import PrivacyPolicy from "./components/Footer/Privypolicy.jsx";
+import TermsAndConditions from "./components/Footer/TermsAndConditions.jsx";
+import RefundPolicy from "./components/Footer/RefundPolicy.jsx";
+import ContactUs from "./components/Footer/ContactUs.jsx";
 
 function App() {
   return (
@@ -68,6 +72,11 @@ function App() {
 
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
+
+          <Route path="/terms-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/contact-us" element={<ContactUs />} />
         </Routes>
       </Router>
     </AuthProvider>
