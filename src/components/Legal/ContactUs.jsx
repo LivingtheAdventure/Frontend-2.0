@@ -80,18 +80,18 @@ export default function ContactUs() {
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5">
+                            {/* <div className="flex items-start gap-3">
+                                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5">
                                     <FaPhone className="text-gray-400 text-sm" />
                                 </div>
-                                <div>
+                                 <div>
                                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Phone</p>
                                     <a href="tel:+911234567890" className="text-sm text-gray-300 hover:text-white transition-colors">
                                         +91 12345 67890
                                     </a>
                                     <p className="text-xs text-gray-600 mt-0.5">Mon–Sat, 9 AM – 6 PM IST</p>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-start gap-3">
                                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5">
