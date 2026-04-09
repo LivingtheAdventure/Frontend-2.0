@@ -8,6 +8,12 @@ import Auth from './Authentication/Auth.jsx';
 import SignupForm from './Authentication/SignupForm.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import Profile from './components/Profile/Profile.jsx';
+import AboutUs from './components/Legal/AboutUs.jsx';
+import ContactUs from './components/Legal/ContactUs.jsx';
+import PrivacyPolicyPage from './components/Legal/PrivacyPolicyPage.jsx';
+import TermsConditions from './components/Legal/TermsConditions.jsx';
+import RefundPolicy from './components/Legal/RefundPolicy.jsx';
+import HelpCenter from './components/Legal/HelpCenter.jsx';
 
 function App() {
   return (
@@ -70,6 +76,14 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/profile" element={<Profile />} />
+
+          {/* Legal & Info pages */}
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/help" element={<HelpCenter />} />
         </Routes>
       </Router>
     </AuthProvider>
