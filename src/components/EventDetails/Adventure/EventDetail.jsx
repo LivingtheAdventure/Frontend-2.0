@@ -11,6 +11,7 @@ import ScheduleHeader from "../components/EventSchedule/ScheduleHeader";
 import PickupPoints from "../components/EventSchedule/PickupPoints";
 import Pricing from "../components/EventSchedule/Pricing";
 import Highlights from "../components/Highlighter";
+import { getApiErrorMessage, getStatus } from "../../../api/errors.js";
 function EventDetail() {
     const { id } = useParams();
 
@@ -26,7 +27,15 @@ function EventDetail() {
 
         fetchEventByID(id)
             .then(data => mounted && setEvents(data))
-            .catch(() => mounted && setError("Failed to load event"))
+            .catch((err) => {
+                if (!mounted) return;
+                const status = getStatus(err);
+                if (status === 404) {
+                    setError("Event not found.");
+                } else {
+                    setError(getApiErrorMessage(err, "Failed to load event"));
+                }
+            })
             .finally(() => mounted && setLoadingEvent(false));
 
         return () => (mounted = false);
@@ -41,7 +50,10 @@ function EventDetail() {
 
         fetchScheduleByID(events.event_id)
             .then(data => mounted && setEventSchedule(data[0]))
-            .catch(() => mounted && setError("Failed to load schedule"))
+            .catch((err) => {
+                if (!mounted) return;
+                setError(getApiErrorMessage(err, "Failed to load schedule"));
+            })
             .finally(() => mounted && setLoadingSchedule(false));
 
         return () => (mounted = false);
@@ -174,6 +186,12 @@ function EventDetail() {
                     {loadingSchedule && (
                         <div className="text-center text-gray-400 mt-10">
                             Loading schedule...
+                        </div>
+                    )}
+
+                    {!loadingSchedule && !eventSchedule && (
+                        <div className="text-center text-gray-400 mt-10">
+                            Schedule is not available for this event yet.
                         </div>
                     )}
                 </div>

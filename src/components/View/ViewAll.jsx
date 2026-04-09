@@ -2,31 +2,79 @@ import { useEffect, useState } from "react";
 import fetchEventsByType from "./FetchEvent";
 import VerticalEventCard from "../Common/EventCard/VerticalEventCard";
 import Spinner from "../Spinner/Spinner";
+import { getApiErrorMessage } from "../../api/errors.js";
+import { useAuth } from "../../context/AuthContext";
+import { fetchFavourites, toggleFavourite } from "../../api/favourites";
 
 function ViewAll({ event_type, state }) {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [favourites, setFavourites] = useState(new Set());
+
+    const { user } = useAuth();
 
     useEffect(() => {
         let mounted = true;
         setLoading(true);
 
-        fetchEventsByType(event_type, state)
-            .then(data => {
-                if (mounted) setEvents(data);
-            })
-            .catch(() => {
-                if (mounted) setError("Failed to load events");
-            })
-            .finally(() => {
+        const load = async () => {
+            try {
+                setError(null);
+                const data = await fetchEventsByType(event_type, state);
+
+                let favIds = [];
+                if (user) {
+                    const token = await user.getIdToken();
+                    favIds = await fetchFavourites(token);
+                }
+
+                if (!mounted) return;
+                setEvents(data);
+                setFavourites(new Set(favIds));
+            } catch (err) {
+                if (mounted) setError(getApiErrorMessage(err, "Failed to load events"));
+            } finally {
                 if (mounted) setLoading(false);
-            });
+            }
+        };
+
+        load();
 
         return () => {
             mounted = false;
         };
-    }, [event_type]);
+    }, [event_type, state, user]);
+
+    const handleToggleFavourite = async (eventId) => {
+        if (!user) {
+            alert("Please login to save favourites.");
+            return;
+        }
+
+        // Optimistic UI update
+        setFavourites((prev) => {
+            const next = new Set(prev);
+            if (next.has(eventId)) next.delete(eventId);
+            else next.add(eventId);
+            return next;
+        });
+
+        try {
+            const token = await user.getIdToken();
+            const isFavourite = await toggleFavourite(eventId, token);
+
+            // Reconcile with server result
+            setFavourites((prev) => {
+                const next = new Set(prev);
+                if (isFavourite) next.add(eventId);
+                else next.delete(eventId);
+                return next;
+            });
+        } catch (err) {
+            console.error("Failed to toggle favourite from view-all", err);
+        }
+    };
 
     if (loading) {
         return (
@@ -85,6 +133,8 @@ function ViewAll({ event_type, state }) {
                         <VerticalEventCard
                             key={event.id}
                             item={event}
+                            isFavourite={favourites.has(event.event_uuid ?? event.id)}
+                            onToggleFavourite={handleToggleFavourite}
                         />
                     ))}
                 </div>

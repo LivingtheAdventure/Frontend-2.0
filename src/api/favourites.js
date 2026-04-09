@@ -22,15 +22,13 @@ export const fetchFavourites = async (token) => {
 };
 
 export const toggleFavourite = async (eventId, token) => {
-  const res = await axios.post(
-    `${API_BASE_URL}/favourites/toggle/`,
-    { event_id: eventId },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  // Backend expects `event_id` as a query param (not JSON body).
+  const res = await axios.post(`${API_BASE_URL}/favourites/toggle`, null, {
+    params: { event_id: eventId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return res.data?.is_favourite;
 };
 

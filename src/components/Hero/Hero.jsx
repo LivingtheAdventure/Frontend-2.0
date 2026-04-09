@@ -4,6 +4,7 @@ import Spinner from "../Spinner/Spinner";
 import MainPage from "../Common/MainPage/MainPage";
 import { useAuth } from "../../context/AuthContext";
 import { fetchFavourites, toggleFavourite } from "../../api/favourites";
+import { getApiErrorMessage } from "../../api/errors.js";
 
 function Hero({ heroType }) {
     const [events, setEvents] = useState([]);
@@ -35,7 +36,7 @@ function Hero({ heroType }) {
                 setFavourites(new Set(favIds));
             } catch (err) {
                 if (isMounted) {
-                    setError(err.message || "Something went wrong");
+                    setError(getApiErrorMessage(err, "Failed to load hero events"));
                 }
             } finally {
                 if (isMounted) {

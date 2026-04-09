@@ -4,6 +4,7 @@ import fetchEvents from "./FetchEvent";
 import Spinner from "../../Spinner/Spinner";
 import { useAuth } from "../../../context/AuthContext";
 import { fetchFavourites, toggleFavourite } from "../../../api/favourites";
+import { getApiErrorMessage } from "../../../api/errors.js";
 
 const Event = ({ heroType }) => {
     const [events, setEvents] = useState([]);
@@ -35,7 +36,7 @@ const Event = ({ heroType }) => {
                 setFavourites(new Set(favIds));
             } catch (err) {
                 if (mounted) {
-                    setError("Failed to load events");
+                    setError(getApiErrorMessage(err, "Failed to load events"));
                 }
             } finally {
                 if (mounted) {
@@ -91,6 +92,13 @@ const Event = ({ heroType }) => {
         <Spinner />
     </div>;
     if (error) return <div className="text-red-500 text-center mt-20">{error}</div>;
+    if (!events.length) {
+        return (
+            <div className="text-gray-400 text-center mt-20">
+                No events available right now.
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen font-sans ml-10 mt-4">

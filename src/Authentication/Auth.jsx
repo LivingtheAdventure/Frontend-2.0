@@ -116,19 +116,26 @@ export default function Auth() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-black px-4">
 
             {/* recaptcha container */}
             <div id="recaptcha-container"></div>
 
-            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+            <div className="w-full max-w-md bg-[#0b1220] p-8 rounded-2xl shadow-2xl border border-white/10">
 
-                <h2 className="text-2xl font-bold text-center mb-6">
-                    {step === "PHONE" ? "Login with Phone" : "Verify OTP"}
-                </h2>
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-semibold text-white">
+                        {step === "PHONE" ? "Login" : "Verify OTP"}
+                    </h2>
+                    <p className="text-sm text-gray-400 mt-1">
+                        {step === "PHONE"
+                            ? "Use your phone number to continue"
+                            : "Enter the OTP sent to your phone"}
+                    </p>
+                </div>
 
                 {error && (
-                    <div className="bg-red-100 text-red-600 p-3 rounded mb-4 text-sm">
+                    <div className="bg-red-500/10 border border-red-500/30 text-red-300 p-3 rounded-lg mb-4 text-sm">
                         {error}
                     </div>
                 )}
@@ -136,7 +143,7 @@ export default function Auth() {
                 {step === "PHONE" && (
                     <>
                         <input
-                            className="w-full border p-3 rounded mb-4"
+                            className="w-full bg-black/40 border border-white/10 text-white placeholder:text-gray-500 p-3 rounded-lg mb-4 outline-none focus:border-white/30"
                             placeholder="Enter phone (9370327415)"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
@@ -145,17 +152,24 @@ export default function Auth() {
                         <button
                             onClick={sendOtp}
                             disabled={loading}
-                            className="w-full bg-black text-white p-3 rounded hover:bg-gray-800"
+                            className="w-full bg-white text-black p-3 rounded-lg hover:bg-gray-200 disabled:opacity-60 transition font-semibold"
                         >
                             {loading ? "Sending OTP..." : "Send OTP"}
                         </button>
+
+                        <div className="text-xs text-gray-500 mt-4 text-center">
+                            New user?{" "}
+                            <a className="text-gray-300 hover:underline" href="/signup">
+                                Complete profile after OTP
+                            </a>
+                        </div>
                     </>
                 )}
 
                 {step === "OTP" && (
                     <>
                         <input
-                            className="w-full border p-3 rounded mb-4"
+                            className="w-full bg-black/40 border border-white/10 text-white placeholder:text-gray-500 p-3 rounded-lg mb-4 outline-none focus:border-white/30"
                             placeholder="Enter OTP"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
@@ -164,10 +178,25 @@ export default function Auth() {
                         <button
                             onClick={verifyOtp}
                             disabled={loading}
-                            className="w-full bg-black text-white p-3 rounded hover:bg-gray-800"
+                            className="w-full bg-white text-black p-3 rounded-lg hover:bg-gray-200 disabled:opacity-60 transition font-semibold"
                         >
                             {loading ? "Verifying..." : "Verify OTP"}
                         </button>
+
+                        <div className="text-xs text-gray-500 mt-4 text-center">
+                            Wrong number?{" "}
+                            <button
+                                type="button"
+                                className="text-gray-300 hover:underline"
+                                onClick={() => {
+                                    setStep("PHONE");
+                                    setOtp("");
+                                    setConfirmation(null);
+                                }}
+                            >
+                                Go back
+                            </button>
+                        </div>
                     </>
                 )}
 

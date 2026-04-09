@@ -5,6 +5,7 @@ import Home from './components/Home/Home.jsx'
 import EventDetail from './components/EventDetails/Adventure/EventDetail.jsx'
 import ViewAll from './components/View/ViewAll.jsx';
 import Auth from './Authentication/Auth.jsx';
+import SignupForm from './Authentication/SignupForm.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import Profile from './components/Profile/Profile.jsx';
 
@@ -67,6 +68,7 @@ function App() {
           <Route path="/best_of_the_year/launch" element={<ViewAll event_type="best_of_the_year" state="Launch" />} />
 
           <Route path="/auth" element={<Auth />} />
+          <Route path="/signup" element={<SignupForm />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </Router>
