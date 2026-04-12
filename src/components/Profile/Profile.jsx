@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import {
     FaUserCircle, FaEdit, FaHeart, FaCheckCircle,
     FaExclamationTriangle, FaPhone, FaEnvelope, FaUser,
-    FaSignOutAlt, FaSave, FaTimes
+    FaSignOutAlt, FaSave, FaTimes, FaCalendarAlt, FaHistory
 } from "react-icons/fa";
 import axios from "axios";
 import { apiUrl } from "../../api/config.js";
 import { getApiErrorMessage } from "../../api/errors.js";
-import { fetchMe, updateProfile, requestEmailOtp, verifyEmailOtp } from "./Profileapi.js";
+import { fetchMe, updateProfile } from "./Profileapi.js";
 import { fetchFavourites } from "../../api/favourites.js";
 
 function Profile() {
@@ -26,21 +26,29 @@ function Profile() {
         first_name: "",
         last_name: "",
         email: "",
-        is_verified: false,
     });
 
+    // Tab state
+    const [activeTab, setActiveTab] = useState("favourites");
+
+    // Favourites
     const [favLoading, setFavLoading] = useState(false);
     const [favouriteIds, setFavouriteIds] = useState([]);
     const [favouriteEvents, setFavouriteEvents] = useState([]);
 
-    const [otpEmail, setOtpEmail] = useState("");
-    const [otpCode, setOtpCode] = useState("");
-    const [otpLoading, setOtpLoading] = useState(false);
+    // Current bookings (placeholder - replace with actual API)
+    const [currentBookings, setCurrentBookings] = useState([]);
+    const [bookingsLoading, setBookingsLoading] = useState(false);
+
+    // Previous events (placeholder - replace with actual API)
+    const [previousEvents, setPreviousEvents] = useState([]);
+    const [previousLoading, setPreviousLoading] = useState(false);
 
     useEffect(() => {
-        if (!user) navigate("/auth");
+        if (!user) navigate("/");
     }, [user]);
 
+    // Load profile
     useEffect(() => {
         let mounted = true;
         const load = async () => {
@@ -54,9 +62,7 @@ function Profile() {
                     first_name: me?.first_name ?? "",
                     last_name: me?.last_name ?? "",
                     email: me?.email ?? "",
-                    is_verified: !!me?.is_verified,
                 });
-                setOtpEmail(me?.email ?? "");
             } catch (err) {
                 if (mounted) setErrorMsg(getApiErrorMessage(err, "Failed to load profile"));
             }
@@ -65,6 +71,7 @@ function Profile() {
         return () => { mounted = false; };
     }, [user]);
 
+    // Load favourites
     useEffect(() => {
         let mounted = true;
         const loadFavs = async () => {
@@ -93,57 +100,54 @@ function Profile() {
         return () => { mounted = false; };
     }, [user]);
 
+    // TODO: Load current bookings when activeTab changes
+    useEffect(() => {
+        if (activeTab === "bookings" && currentBookings.length === 0) {
+            // loadCurrentBookings();
+        }
+    }, [activeTab]);
+
+    // TODO: Load previous events when activeTab changes
+    useEffect(() => {
+        if (activeTab === "previous" && previousEvents.length === 0) {
+            // loadPreviousEvents();
+        }
+    }, [activeTab]);
+
     const handleLogout = async () => { await logout(); navigate("/"); };
 
     const handleChange = (e) => setProfile({ ...profile, [e.target.name]: e.target.value });
 
     const handleSave = async () => {
         if (!user) return;
-        setSaving(true); setErrorMsg(""); setStatusMsg("");
+
+        setSaving(true);
+        setErrorMsg("");
+        setStatusMsg("");
+
         try {
             const token = await user.getIdToken();
+
             const updated = await updateProfile(token, {
                 first_name: profile.first_name,
                 last_name: profile.last_name,
+                email: profile.email,
             });
-            setProfile(prev => ({
-                ...prev,
-                first_name: updated?.first_name ?? prev.first_name,
-                last_name: updated?.last_name ?? prev.last_name,
-            }));
+
+            setProfile({
+                first_name: updated?.first_name ?? profile.first_name,
+                last_name: updated?.last_name ?? profile.last_name,
+                email: updated?.email ?? profile.email,
+            });
+
             setEditMode(false);
             setStatusMsg("Profile updated successfully.");
+
         } catch (err) {
             setErrorMsg(getApiErrorMessage(err, "Failed to save profile"));
         } finally {
             setSaving(false);
         }
-    };
-
-    const handleRequestOtp = async () => {
-        if (!user) return;
-        setOtpLoading(true); setErrorMsg(""); setStatusMsg("");
-        try {
-            const token = await user.getIdToken();
-            const res = await requestEmailOtp(token, otpEmail);
-            setStatusMsg(res?.message || "Verification code sent.");
-        } catch (err) {
-            setErrorMsg(getApiErrorMessage(err, "Failed to send verification code"));
-        } finally { setOtpLoading(false); }
-    };
-
-    const handleVerifyOtp = async () => {
-        if (!user) return;
-        setOtpLoading(true); setErrorMsg(""); setStatusMsg("");
-        try {
-            const token = await user.getIdToken();
-            const res = await verifyEmailOtp(token, { email: otpEmail, otp: otpCode });
-            setProfile(prev => ({ ...prev, email: res?.email ?? otpEmail, is_verified: true }));
-            setOtpCode("");
-            setStatusMsg(res?.message || "Email verified.");
-        } catch (err) {
-            setErrorMsg(getApiErrorMessage(err, "Failed to verify code"));
-        } finally { setOtpLoading(false); }
     };
 
     if (!user) return null;
@@ -165,7 +169,6 @@ function Profile() {
                     style={{ filter: "brightness(0.38)" }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f172a]/30 to-[#0f172a]" />
-                {/* page label top-right */}
                 <div className="absolute top-6 right-8 hidden sm:flex items-center gap-2">
                     <span className="font-bebas text-2xl tracking-widest text-white/60 uppercase">
                         My Profile
@@ -173,14 +176,14 @@ function Profile() {
                 </div>
             </div>
 
-            {/* ── Page body — padded for left sidebar ── */}
+            {/* ── Page body ── */}
             <div className="pl-16 sm:pl-20 pr-4 sm:pr-8 pb-24">
                 <div className="max-w-5xl mx-auto">
 
-                    {/* ── Avatar row overlapping banner ── */}
+                    {/* ── Avatar row ── */}
                     <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-16 relative z-10">
 
-                        {/* Avatar circle */}
+                        {/* Avatar */}
                         <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#1e293b] border-4 border-[#0f172a] shadow-2xl flex items-center justify-center shrink-0">
                             {initials
                                 ? <span className="font-bebas text-4xl sm:text-5xl text-white tracking-wider select-none">{initials}</span>
@@ -207,23 +210,23 @@ function Profile() {
                             {!editMode ? (
                                 <button
                                     onClick={() => setEditMode(true)}
-                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200 cursor-pointer"
+                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200"
                                 >
-                                    <FaEdit className="text-xs" /> Edit
+                                    <FaEdit className="text-xs" /> Edit Profile
                                 </button>
                             ) : (
                                 <>
                                     <button
                                         disabled={saving}
                                         onClick={handleSave}
-                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-all duration-200 cursor-pointer"
+                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-all duration-200"
                                     >
                                         <FaSave className="text-xs" />
-                                        {saving ? "Saving..." : "Save"}
+                                        {saving ? "Saving..." : "Save Changes"}
                                     </button>
                                     <button
                                         onClick={() => setEditMode(false)}
-                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 bg-white/5 text-gray-300 hover:bg-white/10 transition-all duration-200 cursor-pointer"
+                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 bg-white/5 text-gray-300 hover:bg-white/10 transition-all duration-200"
                                     >
                                         <FaTimes className="text-xs" /> Cancel
                                     </button>
@@ -231,7 +234,7 @@ function Profile() {
                             )}
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all duration-200 cursor-pointer"
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all duration-200"
                             >
                                 <FaSignOutAlt className="text-xs" /> Logout
                             </button>
@@ -257,248 +260,186 @@ function Profile() {
                         </div>
                     )}
 
-                    {/* ── Two-column grid ── */}
-                    <div className="grid lg:grid-cols-3 gap-6">
+                    {/* ── Profile Card ── */}
+                    <div className="bg-[#1e293b] rounded-xl border border-gray-800 overflow-hidden mb-8">
 
-                        {/* ══ Left: Account Details (2/3) ══ */}
-                        <div className="lg:col-span-2">
-                            <div className="bg-[#1e293b] rounded-xl border border-gray-800 overflow-hidden">
-
-                                {/* Card header */}
-                                <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-3">
-                                    <FaUser className="text-gray-500 text-sm" />
-                                    <span className="font-semibold text-sm text-gray-200 tracking-wide uppercase">Account Details</span>
-                                </div>
-
-                                <div className="divide-y divide-gray-800">
-
-                                    {/* Phone */}
-                                    <InfoRow
-                                        icon={<FaPhone />}
-                                        label="Phone"
-                                        value={user.phoneNumber || "—"}
-                                        locked
-                                    />
-
-                                    {/* First Name */}
-                                    <div className="flex items-center px-6 py-4 gap-4">
-                                        <FaUser className="text-gray-600 text-sm shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">First Name</p>
-                                            {editMode ? (
-                                                <input
-                                                    name="first_name"
-                                                    value={profile.first_name}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter first name"
-                                                    className="w-full bg-[#020617] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-gray-500 transition-colors"
-                                                />
-                                            ) : (
-                                                <p className="text-sm text-gray-200">{profile.first_name || <Placeholder />}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Last Name */}
-                                    <div className="flex items-center px-6 py-4 gap-4">
-                                        <FaUser className="text-gray-600 text-sm shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Last Name</p>
-                                            {editMode ? (
-                                                <input
-                                                    name="last_name"
-                                                    value={profile.last_name}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter last name"
-                                                    className="w-full bg-[#020617] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-gray-500 transition-colors"
-                                                />
-                                            ) : (
-                                                <p className="text-sm text-gray-200">{profile.last_name || <Placeholder />}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Email */}
-                                    <div className="flex items-center px-6 py-4 gap-4">
-                                        <FaEnvelope className="text-gray-600 text-sm shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Email</p>
-                                            <div className="flex items-center gap-3">
-                                                <p className="text-sm text-gray-200 truncate flex-1">
-                                                    {profile.email || <Placeholder />}
-                                                </p>
-                                                {profile.email && (
-                                                    <span className={`shrink-0 text-xs font-medium px-2.5 py-0.5 rounded-full border ${profile.is_verified
-                                                        ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                                        : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                                        }`}>
-                                                        {profile.is_verified ? "Verified" : "Unverified"}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
+                        {/* Card header */}
+                        <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-3">
+                            <FaUser className="text-gray-500 text-sm" />
+                            <span className="font-semibold text-sm text-gray-200 tracking-wide uppercase">Account Details</span>
                         </div>
 
-                        {/* ══ Right: Email Verification (1/3) ══ */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-[#1e293b] rounded-xl border border-gray-800 overflow-hidden h-full">
+                        <div className="p-6 space-y-5">
 
-                                {/* Card header */}
-                                <div className="px-6 py-4 border-b border-gray-800 flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-3">
-                                        <FaEnvelope className="text-gray-500 text-sm" />
-                                        <span className="font-semibold text-sm text-gray-200 tracking-wide uppercase">Email</span>
-                                    </div>
-                                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${profile.is_verified
-                                        ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                        : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                        }`}>
-                                        {profile.is_verified ? "Verified" : "Unverified"}
-                                    </span>
+                            {/* Phone (locked) */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                <label className="text-xs text-gray-500 uppercase tracking-wider sm:w-32 shrink-0">
+                                    Phone Number
+                                </label>
+                                <div className="flex-1 flex items-center gap-3">
+                                    <input
+                                        type="text"
+                                        value={user.phoneNumber || "—"}
+                                        disabled
+                                        className="flex-1 bg-[#020617]/50 border border-gray-800 rounded-lg px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed"
+                                    />
+                                    <span className="text-xs text-gray-700 border border-gray-800 rounded px-2 py-1">locked</span>
                                 </div>
+                            </div>
 
-                                <div className="p-6">
-                                    {profile.is_verified ? (
-                                        /* ── Verified state ── */
-                                        <div className="flex flex-col items-center text-center gap-3 py-4">
-                                            <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                                                <FaCheckCircle className="text-xl text-green-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-200">Email Verified</p>
-                                                <p className="text-xs text-gray-500 mt-1 break-all">{profile.email}</p>
-                                            </div>
-                                        </div>
+                            {/* First Name */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                <label className="text-xs text-gray-500 uppercase tracking-wider sm:w-32 shrink-0">
+                                    First Name
+                                </label>
+                                <div className="flex-1">
+                                    {editMode ? (
+                                        <input
+                                            name="first_name"
+                                            value={profile.first_name}
+                                            onChange={handleChange}
+                                            placeholder="Enter your first name"
+                                            className="w-full bg-[#020617] border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-gray-500 transition-colors"
+                                        />
                                     ) : (
-                                        /* ── Unverified — show form ── */
-                                        <div className="space-y-4">
-                                            <p className="text-xs text-gray-500 leading-relaxed">
-                                                Verify your email to receive updates and secure your account.
-                                            </p>
-
-                                            {/* Email */}
-                                            <div>
-                                                <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">Email address</label>
-                                                <input
-                                                    value={otpEmail}
-                                                    onChange={(e) => setOtpEmail(e.target.value)}
-                                                    placeholder="you@example.com"
-                                                    className="w-full bg-[#020617] border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-gray-500 transition-colors"
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                disabled={otpLoading || !otpEmail}
-                                                onClick={handleRequestOtp}
-                                                className="w-full bg-white text-black rounded-lg py-2.5 text-sm font-semibold hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                                            >
-                                                {otpLoading ? "Sending..." : "Send OTP"}
-                                            </button>
-
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 h-px bg-gray-800" />
-                                                <span className="text-xs text-gray-600">enter code</span>
-                                                <div className="flex-1 h-px bg-gray-800" />
-                                            </div>
-
-                                            {/* OTP */}
-                                            <div>
-                                                <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">Verification code</label>
-                                                <input
-                                                    value={otpCode}
-                                                    onChange={(e) => setOtpCode(e.target.value)}
-                                                    placeholder="6-digit code"
-                                                    className="w-full bg-[#020617] border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-gray-500 transition-colors"
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                disabled={otpLoading || !otpEmail || !otpCode}
-                                                onClick={handleVerifyOtp}
-                                                className="w-full bg-green-600 text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                                            >
-                                                {otpLoading ? "Verifying..." : "Verify Email"}
-                                            </button>
+                                        <div className="px-4 py-2.5 text-sm text-gray-200">
+                                            {profile.first_name || <span className="text-gray-600 italic">Not set</span>}
                                         </div>
                                     )}
                                 </div>
                             </div>
+
+                            {/* Last Name */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                <label className="text-xs text-gray-500 uppercase tracking-wider sm:w-32 shrink-0">
+                                    Last Name
+                                </label>
+                                <div className="flex-1">
+                                    {editMode ? (
+                                        <input
+                                            name="last_name"
+                                            value={profile.last_name}
+                                            onChange={handleChange}
+                                            placeholder="Enter your last name"
+                                            className="w-full bg-[#020617] border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-gray-500 transition-colors"
+                                        />
+                                    ) : (
+                                        <div className="px-4 py-2.5 text-sm text-gray-200">
+                                            {profile.last_name || <span className="text-gray-600 italic">Not set</span>}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Email */}
+                            <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                                <label className="text-xs text-gray-500 uppercase tracking-wider sm:w-32 shrink-0 sm:pt-2.5">
+                                    Email Address
+                                </label>
+                                <div className="flex-1">
+                                    {editMode ? (
+                                        <>
+                                            <input
+                                                name="email"
+                                                type="email"
+                                                value={profile.email}
+                                                onChange={handleChange}
+                                                placeholder="your.email@example.com"
+                                                className="w-full bg-[#020617] border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-gray-500 transition-colors"
+                                            />
+                                            <div className="mt-3 flex items-start gap-2 p-3 bg-blue-500/5 border border-blue-500/20 rounded-lg">
+                                                <FaEnvelope className="text-blue-400 text-xs mt-0.5 shrink-0" />
+                                                <p className="text-xs text-blue-300 leading-relaxed">
+                                                    All important updates and booking details will be sent to this email. Please make sure it is correct.
+                                                </p>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="px-4 py-2.5 text-sm text-gray-200 break-all">
+                                            {profile.email || <span className="text-gray-600 italic">Not set</span>}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* ══ Favourites Section ══ */}
-                    <div className="mt-10">
-                        <div className="flex items-center gap-4 mb-6">
-                            <FaHeart className="text-gray-600" />
-                            <h2 className="font-bebas text-2xl tracking-widest text-white uppercase">
-                                Favourite Adventures
-                            </h2>
-                            {favouriteIds.length > 0 && (
-                                <span className="ml-auto text-xs text-gray-500 border border-gray-700 rounded px-2 py-0.5">
-                                    {favouriteIds.length} saved
-                                </span>
-                            )}
+                    {/* ── Tabs Section ── */}
+                    <div>
+                        {/* Tab Navigation */}
+                        <div className="flex items-center gap-1 border-b border-gray-800 mb-6">
+                            <button
+                                onClick={() => setActiveTab("favourites")}
+                                className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${activeTab === "favourites"
+                                    ? "border-white text-white"
+                                    : "border-transparent text-gray-500 hover:text-gray-300"
+                                    }`}
+                            >
+                                <FaHeart className="text-xs" />
+                                <span>Favourites</span>
+                                {favouriteIds.length > 0 && (
+                                    <span className="ml-1 px-2 py-0.5 text-xs bg-gray-800 rounded-full">
+                                        {favouriteIds.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            <button
+                                onClick={() => setActiveTab("bookings")}
+                                className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${activeTab === "bookings"
+                                    ? "border-white text-white"
+                                    : "border-transparent text-gray-500 hover:text-gray-300"
+                                    }`}
+                            >
+                                <FaCalendarAlt className="text-xs" />
+                                <span>Current Bookings</span>
+                                {currentBookings.length > 0 && (
+                                    <span className="ml-1 px-2 py-0.5 text-xs bg-gray-800 rounded-full">
+                                        {currentBookings.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            <button
+                                onClick={() => setActiveTab("previous")}
+                                className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${activeTab === "previous"
+                                    ? "border-white text-white"
+                                    : "border-transparent text-gray-500 hover:text-gray-300"
+                                    }`}
+                            >
+                                <FaHistory className="text-xs" />
+                                <span>Previous Events</span>
+                            </button>
                         </div>
 
-                        {favLoading ? (
-                            <div className="flex items-center gap-3 text-gray-500 text-sm py-8">
-                                <div className="w-4 h-4 border-2 border-gray-700 border-t-gray-400 rounded-full animate-spin" />
-                                Loading favourites...
-                            </div>
-                        ) : favouriteIds.length === 0 ? (
-                            <div className="bg-[#1e293b] rounded-xl border border-gray-800 py-14 px-6 text-center">
-                                <FaHeart className="mx-auto text-3xl text-gray-700 mb-4" />
-                                <p className="text-gray-400 text-sm">No favourites yet</p>
-                                <p className="text-gray-600 text-xs mt-1">Explore adventures and save the ones you love</p>
-                                <a
-                                    href="/"
-                                    className="inline-block mt-5 text-xs text-gray-400 border border-gray-700 rounded-lg px-4 py-2 hover:border-gray-500 hover:text-gray-300 transition-colors"
-                                >
-                                    Explore now
-                                </a>
-                            </div>
-                        ) : (
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                                {favouriteEvents.map((ev) => (
-                                    <a
-                                        key={ev.event_uuid ?? ev.id}
-                                        href={`/eventDetails/${ev.id}`}
-                                        className="group bg-[#1e293b] rounded-xl border border-gray-800 hover:border-gray-700 transition-all duration-300 block overflow-hidden"
-                                    >
-                                        {/* Cover image */}
-                                        <div className="aspect-[16/9] overflow-hidden bg-[#020617] relative">
-                                            <img
-                                                src={ev.cover_image_url}
-                                                alt={ev.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                style={{ filter: "brightness(0.85)" }}
-                                                loading="lazy"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b]/80 to-transparent" />
-                                            {/* Heart badge */}
-                                            <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center border border-white/10">
-                                                <FaHeart className="text-xs text-red-400" />
-                                            </div>
-                                        </div>
-                                        {/* Info */}
-                                        <div className="p-4">
-                                            <p className="text-sm font-semibold text-white line-clamp-1 group-hover:text-gray-200 transition-colors">
-                                                {ev.title}
-                                            </p>
-                                            <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
-                                                {ev.short_description}
-                                            </p>
-                                        </div>
-                                    </a>
-                                ))}
-                            </div>
-                        )}
+                        {/* Tab Content */}
+                        <div className="min-h-[400px]">
+                            {/* Favourites Tab */}
+                            {activeTab === "favourites" && (
+                                <FavouritesTab
+                                    loading={favLoading}
+                                    favourites={favouriteEvents}
+                                    count={favouriteIds.length}
+                                />
+                            )}
+
+                            {/* Current Bookings Tab */}
+                            {activeTab === "bookings" && (
+                                <CurrentBookingsTab
+                                    loading={bookingsLoading}
+                                    bookings={currentBookings}
+                                />
+                            )}
+
+                            {/* Previous Events Tab */}
+                            {activeTab === "previous" && (
+                                <PreviousEventsTab
+                                    loading={previousLoading}
+                                    events={previousEvents}
+                                />
+                            )}
+                        </div>
                     </div>
 
                 </div>
@@ -507,24 +448,117 @@ function Profile() {
     );
 }
 
-/* ── Small helper components ── */
-function InfoRow({ icon, label, value, locked }) {
-    return (
-        <div className="flex items-center px-6 py-4 gap-4">
-            <span className="text-gray-600 text-sm shrink-0">{icon}</span>
-            <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{label}</p>
-                <p className="text-sm text-gray-200">{value}</p>
+/* ── Tab Components ── */
+
+function FavouritesTab({ loading, favourites, count }) {
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center gap-3 text-gray-500 text-sm py-16">
+                <div className="w-5 h-5 border-2 border-gray-700 border-t-gray-400 rounded-full animate-spin" />
+                Loading favourites...
             </div>
-            {locked && (
-                <span className="shrink-0 text-xs text-gray-700 border border-gray-800 rounded px-1.5 py-0.5">locked</span>
-            )}
-        </div>
+        );
+    }
+
+    if (count === 0) {
+        return (
+            <div className="bg-[#1e293b] rounded-xl border border-gray-800 py-20 px-6 text-center">
+                <FaHeart className="mx-auto text-4xl text-gray-700 mb-4" />
+                <p className="text-gray-400 text-base font-medium">No favourites yet</p>
+                <p className="text-gray-600 text-sm mt-2">Explore adventures and save the ones you love</p>
+                <a
+                    href="/"
+                    className="inline-block mt-6 text-sm text-white bg-white/10 border border-gray-700 rounded-lg px-6 py-2.5 hover:bg-white/15 hover:border-gray-600 transition-colors"
+                >
+                    Explore Adventures
+                </a>
+            </div >
+        );
+    }
+
+    return (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {favourites.map((ev) => (
+                <a
+                    key={ev.event_uuid ?? ev.id}
+                    href={`/eventDetails/${ev.id}`}
+                    className="group bg-[#1e293b] rounded-xl border border-gray-800 hover:border-gray-700 transition-all duration-300 block overflow-hidden"
+                >
+                    {/* Cover image */}
+                    <div className="aspect-[16/9] overflow-hidden bg-[#020617] relative">
+                        <img
+                            src={ev.cover_image_url}
+                            alt={ev.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            style={{ filter: "brightness(0.85)" }}
+                            loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b]/80 to-transparent" />
+                        {/* Heart badge */}
+                        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center border border-white/10">
+                            <FaHeart className="text-sm text-red-400" />
+                        </div>
+                    </div>
+                    {/* Info */}
+                    <div className="p-4">
+                        <p className="text-sm font-semibold text-white line-clamp-1 group-hover:text-gray-200 transition-colors">
+                            {ev.title}
+                        </p>
+                        <p className="text-xs text-gray-500 line-clamp-2 mt-1.5 leading-relaxed">
+                            {ev.short_description}
+                        </p>
+                    </div>
+                </a>
+            ))
+            }
+        </div >
     );
 }
 
-function Placeholder() {
-    return <span className="text-gray-600 italic">Not set</span>;
+function CurrentBookingsTab({ loading, bookings }) {
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center gap-3 text-gray-500 text-sm py-16">
+                <div className="w-5 h-5 border-2 border-gray-700 border-t-gray-400 rounded-full animate-spin" />
+                Loading bookings...
+            </div>
+        );
+    }
+
+    // TODO: Replace with actual booking data
+    return (
+        <div className="bg-[#1e293b] rounded-xl border border-gray-800 py-20 px-6 text-center">
+            <FaCalendarAlt className="mx-auto text-4xl text-gray-700 mb-4" />
+            <p className="text-gray-400 text-base font-medium">No current bookings</p>
+            <p className="text-gray-600 text-sm mt-2">Book an adventure to see it here</p>
+            <a
+                href="/"
+                className="inline-block mt-6 text-sm text-white bg-white/10 border border-gray-700 rounded-lg px-6 py-2.5 hover:bg-white/15 hover:border-gray-600 transition-colors"
+            >
+                Browse Events
+            </a>
+        </div >
+    );
+}
+
+function PreviousEventsTab({ loading, events }) {
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center gap-3 text-gray-500 text-sm py-16">
+                <div className="w-5 h-5 border-2 border-gray-700 border-t-gray-400 rounded-full animate-spin" />
+                Loading previous events...
+            </div>
+        );
+    }
+
+    // TODO: Replace with actual previous events data
+    return (
+        <div className="bg-[#1e293b] rounded-xl border border-gray-800 py-20 px-6 text-center">
+            <FaHistory className="mx-auto text-4xl text-gray-700 mb-4" />
+            <p className="text-gray-400 text-base font-medium">No previous events</p>
+            <p className="text-gray-600 text-sm mt-2">Your completed adventures will appear here</p>
+        </div>
+    );
 }
 
 export default Profile;
