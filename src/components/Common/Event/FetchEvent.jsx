@@ -6,7 +6,7 @@ const fetchEvents = async (event_type) => {
     try {
         const url =
             event_type === "home"
-                ? apiUrl(`/events/?skip=0&limit=10`)
+                ? apiUrl(`/events/?skip=0&limit=50`)
                 : apiUrl(`/events/by-type/${event_type}`);
 
         const response = await axios.get(url);
