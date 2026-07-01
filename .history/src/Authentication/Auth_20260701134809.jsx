@@ -3,19 +3,22 @@ import axios from "axios";
 import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { auth } from "./firebase";
 import { apiUrl } from "../api/config.js";
-import { FaUser, FaPhone, FaKey, FaSpinner, FaCheckCircle, FaArrowRight } from "react-icons/fa";
+import { FaPhone, FaKey, FaSpinner, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import Logo from "../components/Common/Logo/logo.jsx";
 import { Link } from "react-router-dom";
-export default function Signup() {
-    const [form, setForm] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        otp: ""
-    });
 
-    const [otpSent, setOtpSent] = useState(false);
+const normalizePhone = (phone) => {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) return `+91${digits}`;
+    if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
+    throw new Error("Enter valid Indian phone number");
+};
+
+export default function Auth() {
+    const [phone, setPhone] = useState("");
+    const [otp, setOtp] = useState("");
     const [confirmation, setConfirmation] = useState(null);
+    const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -39,13 +42,6 @@ export default function Signup() {
         }
     }, [otpSent]);
 
-    const normalizePhone = (phone) => {
-        const digits = phone.replace(/\D/g, "");
-        if (digits.length === 10) return `+91${digits}`;
-        if (digits.length === 12 && digits.startsWith("91")) return `+${digits}`;
-        throw new Error("Enter valid Indian phone number");
-    };
-
     const setupRecaptcha = () => {
         if (window.recaptchaVerifier) {
             window.recaptchaVerifier.clear();
@@ -63,28 +59,19 @@ export default function Signup() {
             setSuccess("");
             setLoading(true);
 
-            // Validation
-            if (!form.first_name.trim()) {
-                setError("First name is required");
-                setLoading(false);
-                return;
-            }
-            if (!form.last_name.trim()) {
-                setError("Last name is required");
-                setLoading(false);
-                return;
-            }
-            if (!form.phone || form.phone.trim().length < 10) {
+            // Validate phone
+            if (!phone || phone.trim().length < 10) {
                 setError("Please enter a valid phone number");
                 setLoading(false);
                 return;
             }
 
             setupRecaptcha();
+            const cleanPhone = normalizePhone(phone);
 
             const confirmationResult = await signInWithPhoneNumber(
                 auth,
-                normalizePhone(form.phone),
+                cleanPhone,
                 window.recaptchaVerifier
             );
 
@@ -110,65 +97,70 @@ export default function Signup() {
         }
     };
 
-    const verifyOtpAndSignup = async () => {
+    const verifyOtp = async () => {
         try {
             setError("");
             setSuccess("");
             setLoading(true);
 
-            if (!form.otp || form.otp.length !== 6) {
+            if (!otp || otp.length !== 6) {
                 setError("Please enter a valid 6-digit OTP");
-                setLoading(false);
                 return;
             }
 
             if (!confirmation) {
                 setError("Session expired. Please resend OTP.");
-                setLoading(false);
                 return;
             }
 
-            const result = await confirmation.confirm(form.otp);
+            const result = await confirmation.confirm(otp);
             const token = await result.user.getIdToken();
 
-            await axios.post(
-                apiUrl("/auth/signup/complete"),
-                {
-                    first_name: form.first_name,
-                    last_name: form.last_name
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            setSuccess("Account created successfully! Redirecting...");
-
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1000);
+            await checkUser(token);
 
         } catch (err) {
             console.error(err);
 
             if (err.code === "auth/invalid-verification-code") {
-                setError("Invalid OTP. Please check and try again.");
+                setError("Invalid OTP");
             } else if (err.code === "auth/code-expired") {
                 setError("OTP expired. Please resend OTP.");
-            } else if (err.response?.status === 409) {
-                setError("Account already exists. Please login instead.");
             } else {
-                setError("Signup failed. Please try again.");
+                setError("Verification failed");
             }
+
         } finally {
             setLoading(false);
         }
     };
 
+    const checkUser = async (token) => {
+        try {
+            const res = await axios.post(
+                apiUrl("/auth/firebase/verify"),
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (res.data.status === "LOGIN") {
+                window.location.href = "/";
+            } else {
+                setError("User does not exist please sign-up");
+            }
+
+        } catch (err) {
+            console.error(err);
+            setError("Something went wrong");
+        }
+    };
+
     const handleResend = () => {
-        setForm({ ...form, otp: "" });
+
+        setOtp("");
         setOtpSent(false);
         setConfirmation(null);
         sendOtp();
@@ -176,17 +168,16 @@ export default function Signup() {
 
     return (
         <div>
-            <div className="absolute pt-5 z-20">
+            <div className="absolute">
                 <Link to="/">
                     <Logo />
                 </Link>
             </div>
             <div>
-                <div className="fixed" >
-                    <img src="https://images.pexels.com/photos/29731433/pexels-photo-29731433.jpeg" />
+                <div>
+                    <img src="" />
                 </div>
-                <div className="min-h-screen flex items-center justify-center px-4 py-8">
-
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-8">
 
                     <div id="recaptcha-container"></div>
 
@@ -203,8 +194,8 @@ export default function Signup() {
 
                             {/* Header */}
                             <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-black mb-2">Create Account</h1>
-                                <p className="text-black-400 text-sm">Join us for amazing adventures</p>
+                                <h1 className="text-3xl font-bold text-black mb-2">Welcome Back</h1>
+                                <p className="text-black-400 text-sm">Enter your phone number to continue</p>
                             </div>
 
                             {/* Success Message */}
@@ -222,97 +213,53 @@ export default function Signup() {
                                 </div>
                             )}
 
-                            {/* Form Fields */}
-                            <div className="space-y-4 mb-6">
-
-                                {/* First Name */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        First Name
-                                    </label>
-                                    <div className="relative">
-                                        <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="text"
-                                            placeholder="Enter your first name"
-                                            value={form.first_name}
-                                            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
+                            {/* Phone Input */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-black-300 mb-2">
+                                    Phone Number
+                                </label>
+                                <div className="relative">
+                                    <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
+                                    <input
+                                        type="tel"
+                                        placeholder="Enter your phone number"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        disabled={otpSent}
+                                        className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        maxLength="10"
+                                    />
                                 </div>
-
-                                {/* Last Name */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        Last Name
-                                    </label>
-                                    <div className="relative">
-                                        <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="text"
-                                            placeholder="Enter your last name"
-                                            value={form.last_name}
-                                            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Phone */}
-                                <div>
-                                    <label className="block text-sm font-medium text-black-300 mb-2">
-                                        Phone Number
-                                    </label>
-                                    <div className="relative">
-                                        <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                        <input
-                                            type="tel"
-                                            placeholder="Enter your phone number"
-                                            value={form.phone}
-                                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                            disabled={otpSent}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                            maxLength="10"
-                                        />
-                                    </div>
-                                    <p className="text-xs text-black-500 mt-1.5">Enter 10-digit Indian mobile number</p>
-                                </div>
-
-                                {/* OTP Input */}
-                                {otpSent && (
-                                    <div className="animate-slide-down">
-                                        <label className="block text-sm font-medium text-black-300 mb-2">
-                                            Verification Code
-                                        </label>
-                                        <div className="relative">
-                                            <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
-                                            <input
-                                                id="otp-input"
-                                                type="text"
-                                                placeholder="Enter 6-digit OTP"
-                                                value={form.otp}
-                                                onChange={(e) => setForm({ ...form, otp: e.target.value.replace(/\D/g, "") })}
-                                                className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all tracking-widest text-center text-lg font-semibold"
-                                                maxLength="6"
-                                                autoComplete="one-time-code"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
+                                <p className="text-xs text-black-500 mt-1.5">Enter 10-digit Indian mobile number</p>
                             </div>
+
+                            {/* OTP Input */}
+                            {otpSent && (
+                                <div className="mb-6 animate-slide-down">
+                                    <label className="block text-sm font-medium text-black-300 mb-2">
+                                        Verification Code
+                                    </label>
+                                    <div className="relative">
+                                        <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-black-500" />
+                                        <input
+                                            id="otp-input"
+                                            type="text"
+                                            placeholder="Enter 6-digit OTP"
+                                            value={otp}
+                                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                                            className="w-full pl-12 pr-4 py-3.5 bg-[#0f172a]/50 text-white rounded-lg border border-black-700 focus:border-black-500 focus:outline-none focus:ring-2 focus:ring-black-500/20 transition-all tracking-widest text-center text-lg font-semibold"
+                                            maxLength="6"
+                                            autoComplete="one-time-code"
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Main Action Button */}
                             <button
-                                onClick={otpSent ? verifyOtpAndSignup : sendOtp}
-                                disabled={
-                                    loading ||
-                                    (!otpSent && (!form.first_name || !form.last_name || !form.phone)) ||
-                                    (otpSent && form.otp.length !== 6)
-                                }
-                                className="w-full bg-gradient-to-r bg-black text-white py-3.5 rounded-lg font-semibold hover:from-black-700 hover:to-black-600 disabled:opacity-90 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
+                                onClick={otpSent ? verifyOtp : sendOtp}
+                                disabled={loading || (!otpSent && !phone) || (otpSent && otp.length !== 6)}
+                                className="w-full bg-gradient-to-r bg-black text-white py-3.5 rounded-lg font-semibold disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
                             >
                                 {loading ? (
                                     <>
@@ -321,13 +268,13 @@ export default function Signup() {
                                     </>
                                 ) : otpSent ? (
                                     <>
-                                        <span>Verify & Create Account</span>
+                                        <span>Verify & Login</span>
                                         <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                     </>
                                 ) : (
                                     <>
                                         <span>Send OTP</span>
-                                        {/* <FaArrowRight className="group-hover:translate-x-1 transition-transform" /> */}
+                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}
                             </button>
@@ -358,18 +305,18 @@ export default function Signup() {
                                 <div className="flex-1 h-px bg-black-700"></div>
                             </div>
 
-                            {/* Login Link */}
+                            {/* Signup Link */}
                             <p className="text-center text-sm text-black-400">
-                                Already have an account?{" "}
-                                <a href="/auth" className="text-black-400 hover:text-black-300 font-medium transition-colors">
-                                    Login
+                                Don't have an account?{" "}
+                                <a href="/signup" className="text-black-400 hover:text-black-300 font-medium transition-colors">
+                                    Sign up
                                 </a>
                             </p>
                         </div>
 
                         {/* Footer */}
                         <p className="text-center text-xs text-white mt-6">
-                            By creating an account, you agree to our Terms of Service and Privacy Policy
+                            By continuing, you agree to our Terms of Service and Privacy Policy
                         </p>
                     </div>
 

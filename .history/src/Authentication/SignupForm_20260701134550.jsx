@@ -327,7 +327,7 @@ export default function Signup() {
                                 ) : (
                                     <>
                                         <span>Send OTP</span>
-                                        {/* <FaArrowRight className="group-hover:translate-x-1 transition-transform" /> */}
+                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}
                             </button>

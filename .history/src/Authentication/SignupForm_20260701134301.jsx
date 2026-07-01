@@ -199,7 +199,10 @@ export default function Signup() {
                     <div className="w-full max-w-md relative z-10">
 
                         {/* Card */}
-                        <div className="bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.45)] p-5 rounded-2xl">
+                        <div className="bg-white/10
+backdrop-blur-2xl
+border border-white/20
+shadow-[0_20px_60px_rgba(0,0,0,0.45)]backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/10">
 
                             {/* Header */}
                             <div className="text-center mb-8">
@@ -327,7 +330,7 @@ export default function Signup() {
                                 ) : (
                                     <>
                                         <span>Send OTP</span>
-                                        {/* <FaArrowRight className="group-hover:translate-x-1 transition-transform" /> */}
+                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}
                             </button>

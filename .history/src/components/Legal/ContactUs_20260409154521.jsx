@@ -18,14 +18,12 @@ export default function ContactUs() {
         setError("");
 
         const formData = new FormData();
-
-        // Your Web3Forms Access Key
-        formData.append("access_key", "9eba54f3-c273-4d08-939b-0fedcc697d8d");
-
+        formData.append("access_key", "c1b61412-459f-40a1-b079-70fd4d096f96");
+        formData.append("to", "living.the.adventure0@gmail.com");
         formData.append("name", form.name);
         formData.append("email", form.email);
         formData.append("phone", form.phone);
-        formData.append("subject", form.subject || "Contact Form");
+        formData.append("subject", `[LivingTheAdventure] ${form.subject || "Contact Form"}`);
         formData.append("message", form.message);
 
         try {
@@ -33,23 +31,14 @@ export default function ContactUs() {
                 method: "POST",
                 body: formData,
             });
-
             const data = await response.json();
-
             if (data.success) {
                 setSent(true);
-                setForm({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    subject: "",
-                    message: "",
-                });
             } else {
-                setError(data.message || "Something went wrong.");
+                setError(data.message || "Something went wrong. Please try again.");
             }
-        } catch (error) {
-            setError("Network error. Please try again.");
+        } catch (err) {
+            setError("Network error. Please check your connection and try again.");
         } finally {
             setSending(false);
         }
@@ -111,7 +100,8 @@ export default function ContactUs() {
                                 <div>
                                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Address</p>
                                     <p className="text-sm text-gray-300 leading-relaxed">
-                                        Samrudhi Angan ,Umbrya Ganpati Chouk dhayari  - 411041
+                                        LivingTheAdventure<br />
+                                        India
                                     </p>
                                 </div>
                             </div>

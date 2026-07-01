@@ -18,14 +18,12 @@ export default function ContactUs() {
         setError("");
 
         const formData = new FormData();
-
-        // Your Web3Forms Access Key
-        formData.append("access_key", "9eba54f3-c273-4d08-939b-0fedcc697d8d");
-
+        formData.append("access_key", "e1edd928-3a1c-435f-96d4-555d91e16c0f");
+        formData.append("to", "living.the.adventure0@gmail.com");
         formData.append("name", form.name);
         formData.append("email", form.email);
         formData.append("phone", form.phone);
-        formData.append("subject", form.subject || "Contact Form");
+        formData.append("subject", `[LivingTheAdventure] ${form.subject || "Contact Form"}`);
         formData.append("message", form.message);
 
         try {
@@ -33,23 +31,14 @@ export default function ContactUs() {
                 method: "POST",
                 body: formData,
             });
-
             const data = await response.json();
-
             if (data.success) {
                 setSent(true);
-                setForm({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    subject: "",
-                    message: "",
-                });
             } else {
-                setError(data.message || "Something went wrong.");
+                setError(data.message || "Something went wrong. Please try again.");
             }
-        } catch (error) {
-            setError("Network error. Please try again.");
+        } catch (err) {
+            setError("Network error. Please check your connection and try again.");
         } finally {
             setSending(false);
         }
