@@ -2,7 +2,7 @@
 import './index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './components/Home/Home.jsx'
-import EventDetail from './components/EventDetails/Adventure/EventDetail.jsx'
+import EventDetail from './components/EventDetails/EventDetail.jsx'
 import ViewAll from './components/View/ViewAll.jsx';
 import Auth from './Authentication/Auth.jsx';
 import SignupForm from './Authentication/SignupForm.jsx';
