@@ -101,7 +101,7 @@ function usePayment({
 
         if (!user) {
 
-            navigate("/login", {
+            navigate("/auth", {
                 state: {
                     from:
                         window.location.pathname,
